@@ -8,16 +8,24 @@ import java.util.Arrays;
 
 public class App {
   public static void main(String[] args) {
-    Module mod = Module.load("demo-model.pt1");
     Tensor data =
-        Tensor.fromBlob(
-            new int[] {1, 2, 3, 4, 5, 6}, // data
-            new long[] {2, 3} // shape
+            Tensor.fromBlob(
+                    new float[] {1, 2, 3, 4, 5}, // data
+                    new long[] {1, 5} // shape
             );
-    IValue result = mod.forward(IValue.from(data), IValue.from(3.0));
-    Tensor output = result.toTensor();
-    System.out.println("shape: " + Arrays.toString(output.shape()));
-    System.out.println("data: " + Arrays.toString(output.getDataAsFloatArray()));
+    Module mod1 = Module.load("dummy-model.pt");
+    IValue result1 = mod1.forward(IValue.from(data));
+    Tensor output1 = result1.toTensor();
+
+    System.out.println("Unquantized model:");
+    System.out.println("data: " + Arrays.toString(output1.getDataAsFloatArray()));
+
+    Module mod2 = Module.load("dummy-model-quantized.pt");
+    IValue result2 = mod2.forward(IValue.from(data));
+    Tensor output2 = result2.toTensor();
+
+    System.out.println("Quantized model:");
+    System.out.println("data: " + Arrays.toString(output2.getDataAsFloatArray()));
 
     // Workaround for https://github.com/facebookincubator/fbjni/issues/25
     System.exit(0);

@@ -3,23 +3,18 @@ plugins {
     id 'application'
 }
 
-def USE_NIGHTLY = System.getenv('USE_LIBTORCH_NIGHTLY')?.toBoolean()
-
-def LIBTORCH_VERSION = USE_NIGHTLY ? "1.10.0-SNAPSHOT" : "1.9.0";
+def LIBTORCH_VERSION = "1.13.1";
 
 repositories {
     jcenter()
-
-    if (USE_NIGHTLY) {
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-    }
 }
 
 dependencies {
     implementation "org.pytorch:pytorch_java_only:${LIBTORCH_VERSION}"
 }
 
-def LIBTORCH_HOME = System.getenv('LIBTORCH_HOME')
+def LIBTORCH_HOME = System.getenv('LIBTORCH_HOME') // Or set path to libtorch here
+
 if (!LIBTORCH_HOME) {
   throw new RuntimeException('LIBTORCH_HOME not present in environment.');
 }
@@ -31,7 +26,7 @@ if (!BUILD_VERSION_FILE.isFile()) {
 }
 def installedVersion = BUILD_VERSION_FILE.readLines()[0].replace("\"", "");
 def versionPattern = "^" + java.util.regex.Pattern.quote(LIBTORCH_VERSION) + "\\b.*";
-if (!USE_NIGHTLY && !(installedVersion ==~ versionPattern)) {
+if (!(installedVersion ==~ versionPattern)) {
   throw new RuntimeException(
     "Found libtorch version ${installedVersion}, but build.gradle expects ${LIBTORCH_VERSION}.");
 }
